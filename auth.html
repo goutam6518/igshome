@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Create Account</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+
+        .auth-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .switch-auth {
+            margin-top: 20px;
+            color: #777;
+        }
+
+        .switch-auth a {
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        #createAccountSection,
+        #loginSection {
+            display: none;
+        }
+
+        #createAccountSection.active,
+        #loginSection.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Login / Create Account</h2>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <div id="loginSection" class="active">
+            <h3>Login</h3>
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button id="loginButton">Log In</button>
+            <div class="switch-auth">
+                Don't have an account? <a id="switchToCreate">Create Account</a>
+            </div>
+        </div>
+
+        <div id="createAccountSection">
+            <h3>Create Account</h3>
+            <div class="form-group">
+                <label for="createUsername">Username:</label>
+                <input type="text" id="createUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="createEmail">Email:</label>
+                <input type="email" id="createEmail" required>
+            </div>
+            <div class="form-group">
+                <label for="createPassword">Password:</label>
+                <input type="password" id="createPassword" required>
+            </div>
+            <button id="createAccountButton">Create Account</button>
+            <div class="switch-auth">
+                Already have an account? <a id="switchToLogin">Log In</a>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js';
+        import { getFirestore, doc, setDoc } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js';
+
+        // Your Firebase configuration (the same as in your other files)
+        const firebaseConfig = {
+          apiKey: "AIzaSyCRtPZ34Y1J-p5b7FJxEUagYg3h_D6PbhM",
+    authDomain: "igsfogstudio-df541.firebaseapp.com",
+    databaseURL: "https://igsfogstudio-df541-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "igsfogstudio-df541",
+    storageBucket: "igsfogstudio-df541.firebasestorage.app",
+    messagingSenderId: "206722625476",
+    appId: "1:206722625476:web:c222830b5404f87bf57e91",
+    measurementId: "G-1JL82Z0FK0"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const loginSection = document.getElementById('loginSection');
+        const createAccountSection = document.getElementById('createAccountSection');
+        const switchToCreate = document.getElementById('switchToCreate');
+        const switchToLogin = document.getElementById('switchToLogin');
+        const loginButton = document.getElementById('loginButton');
+        const createAccountButton = document.getElementById('createAccountButton');
+        const errorMessage = document.getElementById('errorMessage');
+        const createUsernameInput = document.getElementById('createUsername');
+        const createEmailInput = document.getElementById('createEmail');
+        const createPasswordInput = document.getElementById('createPassword');
+        const loginEmailInput = document.getElementById('loginEmail');
+        const loginPasswordInput = document.getElementById('loginPassword');
+
+        // Function to switch between login and create account forms
+        function showLogin() {
+            loginSection.classList.add('active');
+            createAccountSection.classList.remove('active');
+            errorMessage.textContent = '';
+        }
+
+        function showCreateAccount() {
+            createAccountSection.classList.add('active');
+            loginSection.classList.remove('active');
+            errorMessage.textContent = '';
+        }
+
+        // Event listeners to switch forms
+        switchToCreate.addEventListener('click', showCreateAccount);
+        switchToLogin.addEventListener('click', showLogin);
+
+        // Event listener for creating a new account
+        createAccountButton.addEventListener('click', async () => {
+            const username = createUsernameInput.value.trim();
+            const email = createEmailInput.value.trim();
+            const password = createPasswordInput.value;
+
+            if (!username || !email || !password) {
+                errorMessage.textContent = 'Please fill in all fields.';
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Update user's display name (username)
+                await updateProfile(user, {
+                    displayName: username
+                });
+
+                // Save additional user info to Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    uid: user.uid,
+                    userName: username,
+                    email: email,
+                    studioName: '' // Initialize other fields as needed
+                    // profileLogoUrl will be handled in profile settings
+                });
+
+                errorMessage.textContent = 'Account created successfully! Redirecting...';
+                setTimeout(() => {
+                    window.location.href = 'profile.html'; // Redirect to profile.html
+                }, 1500);
+
+            } catch (error) {
+                errorMessage.textContent = getErrorMessage(error.code);
+                console.error('Error creating account:', error);
+            }
+        });
+
+        // Event listener for logging in
+        loginButton.addEventListener('click', async () => {
+            const email = loginEmailInput.value.trim();
+            const password = loginPasswordInput.value;
+
+            if (!email || !password) {
+                errorMessage.textContent = 'Please enter your email and password.';
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                errorMessage.textContent = 'Logged in successfully! Redirecting...';
+                setTimeout(() => {
+                    window.location.href = 'profile.html'; // Redirect to profile.html
+                }, 1500);
+            } catch (error) {
+                errorMessage.textContent = getErrorMessage(error.code);
+                console.error('Error logging in:', error);
+            }
+        });
+
+        // Function to get a user-friendly error message
+        function getErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/email-already-in-use':
+                    return 'Email address is already in use.';
+                case 'auth/invalid-email':
+                    return 'Invalid email address.';
+                case 'auth/weak-password':
+                    return 'Password should be at least 6 characters.';
+                case 'auth/wrong-password':
+                    return 'Incorrect password.';
+                case 'auth/user-not-found':
+                    return 'User not found with this email.';
+                default:
+                    return 'An error occurred. Please try again.';
+            }
+        }
+
+        // Initially show the login form
+        showLogin();
+    </script>
+</body>
+</html>

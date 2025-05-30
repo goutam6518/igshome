@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #000;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+    }
+
+    #homeBtn, #signOutBtn {
+      position: absolute;
+      background-color: #ffc107;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #homeBtn {
+      top: 20px;
+      left: 20px;
+    }
+
+    #signOutBtn {
+      top: 20px;
+      right: 20px;
+    }
+
+    .profile-container {
+      text-align: center;
+      margin-top: 100px;
+    }
+
+    .profile-photo {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid #ffc107;
+    }
+
+    .profile-name, .profile-studio {
+      font-size: 1.8em;
+      margin: 10px 0;
+    }
+
+    input[type="text"] {
+      font-size: 1.2em;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ffc107;
+      margin: 5px 0;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    #editBtn, #uploadBtn {
+      font-size: 1.1em;
+      padding: 10px 25px;
+      background-color: #ffc107;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin: 20px auto;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      margin: 40px 20px 10px;
+      color: #ffc107;
+    }
+
+    #gameList {
+      width: 90%;
+      max-width: 900px;
+      margin: 20px auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .game-item {
+      background-color: #ffc107;
+      color: #000;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      width: 180px;
+    }
+
+    .game-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      background-color: #fff;
+    }
+
+    .game-name {
+      font-size: 1em;
+      margin-top: 10px;
+    }
+
+    .game-meta {
+      font-size: 0.9em;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <button id="homeBtn" onclick="window.location.href='index.html'">Home</button>
+  <button id="signOutBtn">Sign Out</button>
+
+  <div class="profile-container">
+    <img src="https://ik.imagekit.io/6ilngyaqa/1748151255149-1000078269_3cHySnYwl.webp" alt="Profile Photo" class="profile-photo">
+    <div id="userName" class="profile-name" contenteditable="false">User Name</div>
+    <div id="studioName" class="profile-studio" contenteditable="false">Studio Name</div>
+    <button id="editBtn">Edit Profile</button>
+  </div>
+
+  <div class="section-title">Uploaded game</div>
+  <div id="gameList"></div>
+
+  <button id="uploadBtn" onclick="window.location.href='https://t.me/gkfog1'">Upload Game</button>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCRtPZ34Y1J-p5b7FJxEUagYg3h_D6PbhM",
+      authDomain: "igsfogstudio-df541.firebaseapp.com",
+      projectId: "igsfogstudio-df541",
+      storageBucket: "igsfogstudio-df541.appspot.com",
+      messagingSenderId: "206722625476",
+      appId: "1:206722625476:web:c222830b5404f87bf57e91",
+      measurementId: "G-1JL82Z0FK0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const userNameEl = document.getElementById("userName");
+    const studioNameEl = document.getElementById("studioName");
+    const editBtn = document.getElementById("editBtn");
+    const signOutBtn = document.getElementById("signOutBtn");
+    const gameList = document.getElementById("gameList");
+
+    let isEditing = false;
+    let currentUser = null;
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        window.location.href = "auth.html";
+      } else {
+        currentUser = user;
+        await loadUserProfile();
+        await loadUserGames();
+      }
+    });
+
+    async function loadUserProfile() {
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        userNameEl.textContent = data.name || "User Name";
+        studioNameEl.textContent = data.studioName || "Studio Name";
+      }
+    }
+
+    editBtn.addEventListener("click", async () => {
+      if (isEditing) {
+        const newName = userNameEl.textContent.trim();
+        const newStudio = studioNameEl.textContent.trim();
+        await updateDoc(doc(db, "users", currentUser.uid), {
+          name: newName,
+          studioName: newStudio
+        });
+        userNameEl.contentEditable = "false";
+        studioNameEl.contentEditable = "false";
+        editBtn.textContent = "Edit Profile";
+        isEditing = false;
+      } else {
+        userNameEl.contentEditable = "true";
+        studioNameEl.contentEditable = "true";
+        userNameEl.focus();
+        editBtn.textContent = "Save Profile";
+        isEditing = true;
+      }
+    });
+
+    signOutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "auth.html";
+    });
+
+    async function loadUserGames() {
+      const gamesRef = collection(db, "games");
+      const snapshot = await getDocs(gamesRef);
+      gameList.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const game = doc.data();
+        if (game.uploaderId === currentUser.uid) {
+          const item = document.createElement("div");
+          item.className = "game-item";
+          item.innerHTML = `
+            <img src="${game.gameLogoUrl || 'placeholder.png'}" alt="Game Logo">
+            <div class="game-name">${game.gameName}</div>
+            <div class="game-meta">Downloads: ${game.downloadCount || 0}</div>
+          `;
+          gameList.appendChild(item);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
