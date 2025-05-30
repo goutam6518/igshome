@@ -66,13 +66,24 @@
       justify-content: center;
     }
 
+    .game-link {
+      text-decoration: none;
+      color: inherit;
+    }
+
     .game-card {
-      background-color: #1a1a1a;
+      background-color: #1c1c1c;
       border: 2px solid #444;
       border-radius: 10px;
       padding: 10px;
       width: 160px;
       text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .game-card:hover {
+      transform: scale(1.03);
+      border-color: #FFD700;
     }
 
     .game-card img {
@@ -104,6 +115,7 @@
       display: flex;
       justify-content: space-around;
       border-top: 1px solid #444;
+      z-index: 1000;
     }
 
     .bottom-nav button {
@@ -137,28 +149,25 @@
 
   <div class="bottom-nav">
     <button onclick="location.href='index.html'">Home</button>
-    <button onclick="location.reload='games.html'">Games</button>
+    <button onclick="location.href='games.html'">Games</button>
     <button onclick="location.href='event.html'">Event</button>
     <button onclick="location.href='https://t.me/gkfog1'">H Bot</button>
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js" type="module"></script>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCRtPZ34Y1J-p5b7FJxEUagYg3h_D6PbhM",
-    authDomain: "igsfogstudio-df541.firebaseapp.com",
-    databaseURL: "https://igsfogstudio-df541-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "igsfogstudio-df541",
-    storageBucket: "igsfogstudio-df541.firebasestorage.app",
-    messagingSenderId: "206722625476",
-    appId: "1:206722625476:web:c222830b5404f87bf57e91",
-    measurementId: "G-1JL82Z0FK0"
+      authDomain: "igsfogstudio-df541.firebaseapp.com",
+      databaseURL: "https://igsfogstudio-df541-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "igsfogstudio-df541",
+      storageBucket: "igsfogstudio-df541.appspot.com",
+      messagingSenderId: "206722625476",
+      appId: "1:206722625476:web:c222830b5404f87bf57e91",
+      measurementId: "G-1JL82Z0FK0"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -170,6 +179,10 @@
       const querySnapshot = await getDocs(collection(db, "games"));
       querySnapshot.forEach((doc) => {
         const data = doc.data();
+        const gameLink = document.createElement("a");
+        gameLink.href = `gamed.html?id=${doc.id}`;
+        gameLink.className = "game-link";
+
         const card = document.createElement("div");
         card.className = "game-card";
         card.innerHTML = `
@@ -177,16 +190,18 @@
           <h3>${data.gameName}</h3>
           <p>${data.uploaderName || "Unknown Studio"}</p>
         `;
-        gameList.appendChild(card);
+
+        gameLink.appendChild(card);
+        gameList.appendChild(gameLink);
       });
     }
 
     window.searchGames = function () {
       const input = document.getElementById("searchInput").value.toLowerCase();
-      const cards = document.querySelectorAll(".game-card");
-      cards.forEach(card => {
-        const name = card.querySelector("h3").textContent.toLowerCase();
-        card.style.display = name.includes(input) ? "block" : "none";
+      const cards = document.querySelectorAll(".game-link");
+      cards.forEach(link => {
+        const name = link.querySelector("h3").textContent.toLowerCase();
+        link.style.display = name.includes(input) ? "block" : "none";
       });
     };
 
