@@ -121,10 +121,11 @@
     }
   </style>
 
-  <!-- Firebase -->
+  <!-- Firebase SDKs -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCRtPZ34Y1J-p5b7FJxEUagYg3h_D6PbhM",
@@ -139,6 +140,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth();
 
     const params = new URLSearchParams(window.location.search);
     const gameId = params.get("id");
@@ -202,13 +204,31 @@
     }
 
     window.onload = loadGame;
+
+    // Track bottom button clicks only if user is logged in
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        let clickCount = 0;
+        document.getElementById("clickTracker").style.display = "block";
+        const bottomButtons = document.querySelectorAll(".bottom-nav button");
+
+        bottomButtons.forEach(btn => {
+          btn.addEventListener("click", () => {
+            clickCount++;
+            document.getElementById("clickCount").innerText = clickCount;
+          });
+        });
+      } else {
+        console.log("Not logged in. Click tracking disabled.");
+      }
+    });
   </script>
 </head>
 <body>
 
   <div id="loading"><h3>Loading game...</h3></div>
 
-  <div id="gameSection">
+  <div id="gameSection" style="display: none;">
     <img id="logo" src="" alt="Game Logo">
     <h1 id="name"></h1>
     <h3 id="uploader"></h3>
@@ -225,9 +245,13 @@
 
   <div id="error" style="color:red;"></div>
 
+  <!-- ✅ Click Tracker: Only for logged-in users -->
+  <p id="clickTracker" style="text-align: center; color: #aaa; font-size: 0.9em; margin-bottom: 5px; display: none;">
+    Bottom buttons clicked: <span id="clickCount">0</span> times.
+  </p>
+
   <div class="bottom-nav">
-   
-  <button onclick="location.href='index.html'">Home</button>
+    <button onclick="location.href='index.html'">Home</button>
     <button onclick="location.href='games.html'">Games</button>
     <button onclick="location.href='profile.html'">Profile</button>
   </div>
