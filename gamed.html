@@ -1,171 +1,173 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html>
 <head>
   <title>Game Download</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
-    /* (Your original styling skipped here for brevity) */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+    }#gameSection {
+  padding: 30px 20px 150px;
+}
 
-    .star-rating {
-      display: inline-block;
-      font-size: 2em;
-      color: #444;
-      cursor: pointer;
-    }
-    .star-rating .star {
-      display: inline-block;
-    }
-    .star-rating .filled {
-      color: gold;
-    }
-    .studio-banner {
-      background: #FFD700;
-      color: #000;
-      padding: 10px;
-      margin: 20px 0;
-      font-size: 1.2em;
-      cursor: pointer;
-    }
+#logo {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin-top: 30px;
+}
+
+h1 {
+  font-size: 2.5em;
+  margin: 10px 0 5px;
+}
+
+h3 {
+  font-size: 1em;
+  margin-bottom: 30px;
+  color: #fff;
+}
+
+.btn {
+  background: #FFD700;
+  color: #000;
+  width: 80%;
+  max-width: 300px;
+  padding: 15px;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.info-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.screenshots-container {
+  margin-top: 30px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 10px;
+}
+
+.screenshots-container img {
+  width: 250px;
+  height: 150px;
+  object-fit: cover;
+  margin-right: 15px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.star-rating {
+  margin-top: 20px;
+}
+
+.star {
+  font-size: 2em;
+  cursor: pointer;
+  color: #444;
+}
+
+.star.filled {
+  color: gold;
+}
+
+.studio-banner {
+  background-color: #FFD700;
+  color: #000;
+  font-size: 1.2em;
+  padding: 10px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+#loading, #error {
+  padding: 40px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  background-color: #FFD700;
+  padding: 15px 40px;
+  box-sizing: border-box;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: #000;
+  font-size: 1.2em;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.8em;
+  }
+
+  .info-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    width: 90%;
+  }
+
+  .bottom-nav {
+    padding: 10px 20px;
+  }
+
+  .screenshots-container img {
+    width: 80%;
+    height: auto;
+  }
+}
+
   </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
-
-    const firebaseConfig = {/* your config */};
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    const params = new URLSearchParams(window.location.search);
-    const gameId = params.get('id');
-
-    let currentUser = null;
-    let userRating = 0;
-
-    window.onload = async () => {
-      const loader = document.getElementById('loading');
-      const section = document.getElementById('gameSection');
-      const errorDiv = document.getElementById('error');
-      loader.style.display = 'block';
-
-      if (!gameId) {
-        errorDiv.textContent = 'No game ID provided.';
-        loader.style.display = 'none';
-        return;
-      }
-
-      try {
-        const snap = await getDoc(doc(db, 'games', gameId));
-        if (!snap.exists()) throw new Error('Game not found');
-        const game = snap.data();
-
-        document.getElementById('logo').src = game.gameLogoUrl;
-        document.getElementById('name').textContent = game.gameName;
-        document.getElementById('fileSize').textContent = `Size ${game.fileSize || "Unknown"}`;
-
-        const downloadLabel = document.getElementById('downloads');
-        let downloadCount = game.downloadsCount || 0;
-        downloadLabel.textContent = `${downloadCount} Downloads`;
-
-        // Studio banner
-        const banner = document.getElementById('studioBanner');
-        banner.textContent = game.uploaderName;
-        banner.onclick = () => window.location.href = `profile.html?user=${encodeURIComponent(game.uploaderId)}`;
-
-        // Rating UI
-        const avg = game.ratingSum / (game.ratingCount || 1);
-        document.getElementById('avgRating').textContent = avg.toFixed(1);
-
-        // Stars components
-        const stars = document.querySelectorAll('#starContainer .star');
-        stars.forEach((star, idx) => {
-          star.onmouseenter = () => fillStars(idx);
-          star.onclick = async () => {
-            if (!currentUser) return alert('Login to rate');
-            userRating = idx + 1;
-            await updateRating();
-          };
-        });
-
-        loader.style.display = 'none';
-        section.style.display = 'block';
-      } catch (e) {
-        loader.style.display = 'none';
-        errorDiv.textContent = e.message;
-      }
-    };
-
-    onAuthStateChanged(auth, user => {
-      currentUser = user;
-      const tracker = document.getElementById('clickTracker');
-      if (user) {
-        tracker.style.display = 'block';
-        document.querySelectorAll('.bottom-nav button').forEach(btn => {
-          btn.onclick = () => incrementDownload();
-        });
-      } else {
-        tracker.style.display = 'none';
-      }
-    });
-
-    async function incrementDownload() {
-      const downloadsEl = document.getElementById('downloads');
-      let val = parseInt(downloadsEl.textContent);
-      downloadsEl.textContent = `${++val} Downloads`;
-      await updateDoc(doc(db, 'games', gameId), { downloadsCount: val });
-    }
-
-    function fillStars(toIdx) {
-      document.querySelectorAll('#starContainer .star').forEach((s, i) => {
-        s.classList.toggle('filled', i <= toIdx);
-      });
-    }
-
-    async function updateRating() {
-      const gameRef = doc(db, 'games', gameId);
-      await updateDoc(gameRef, {
-        ratingSum: firebase.firestore.FieldValue.increment(userRating),
-        ratingCount: firebase.firestore.FieldValue.increment(1),
-      });
-      fillStars(userRating - 1);
-    }
-  </script>
+  <!-- Scripts will be inserted here -->
 </head>
-<body>
-  <div id="loading"><h3>Loading game...</h3></div>
-  <div id="gameSection" style="display:none">
-    <img id="logo"><h1 id="name"></h1>
-    <div id="studioBanner" class="studio-banner"></div>
-    <div class="info-container">
-      <div id="fileSize"></div><div id="downloads"></div>
-    </div>
-    <button id="downloadBtn" class="btn">Download</button>
+<body>  <div id="loading"><h3>Loading game...</h3></div>  <div id="gameSection" style="display: none;">
+    <img id="logo" src="" alt="Game Logo">
+    <h1 id="name"></h1>
+    <h3 id="uploader"></h3><div class="studio-banner" id="studioBanner">Studio Name</div>
 
-    <div class="screenshots-container" id="screenshots"></div>
+<div class="info-container">
+  <div id="fileSize"></div>
+  <div id="downloads"></div>
+</div>
 
-    <div>
-      <span id="avgRating">0.0</span>/8 average rating
-      <div id="starContainer" class="star-rating">
-        <!-- 8 stars -->
-        <span class="star">&#9733;</span><span class="star">&#9733;</span>
-        <span class="star">&#9733;</span><span class="star">&#9733;</span>
-        <span class="star">&#9733;</span><span class="star">&#9733;</span>
-        <span class="star">&#9733;</span><span class="star">&#9733;</span>
-      </div>
-    </div>
-  </div>
+<button id="downloadBtn" class="btn">Download</button>
 
-  <div id="error" style="color:red"></div>
+<div id="screenshots" class="screenshots-container"></div>
 
-  <p id="clickTracker" style="display:none; text-align:center; color:#aaa; font-size:0.9em;">
-    Bottom button clicks count as Downloads.
-  </p>
+<div class="star-rating" id="starContainer">
+  <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
+  <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
+</div>
+<div><span id="avgRating">0</span> / 8 Rating</div>
 
-  <div class="bottom-nav">
-    <button>Home</button><button>Games</button><button>Profile</button>
-  </div>
-</body>
+  </div>  <div id="error" style="color:red;"></div>  <!-- ✅ Click Tracker: Only for logged-in users -->  <p id="clickTracker" style="text-align: center; color: #aaa; font-size: 0.9em; margin-bottom: 5px; display: none;">
+    Bottom buttons clicked: <span id="clickCount">0</span> times.
+  </p>  <div class="bottom-nav">
+    <button onclick="location.href='index.html'">Home</button>
+    <button onclick="location.href='games.html'">Games</button>
+    <button onclick="location.href='profile.html'">Profile</button>
+  </div></body>
 </html>
