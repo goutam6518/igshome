@@ -1,4 +1,5 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html>
 <head>
   <title>Game Download</title>
   <meta charset="UTF-8" />
@@ -9,165 +10,309 @@
       text-align: center;
       margin: 0;
       background-color: #000;
-      color: #fff;
-    }#gameSection {
-  padding: 30px 20px 150px;
-}
+      color: #ffc107;
+    }
 
-#logo {
-  width: 200px;
-  height: 200px;
-  object-fit: contain;
-  margin-top: 30px;
-}
+    #gameSection {
+      padding: 30px 20px 150px;
+      display: none;
+    }
 
-h1 {
-  font-size: 2.5em;
-  margin: 10px 0 5px;
-}
+    #logo {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      margin-top: 30px;
+    }
 
-h3 {
-  font-size: 1em;
-  margin-bottom: 30px;
-  color: #fff;
-}
+    h1 {
+      font-size: 2.5em;
+      margin: 10px 0 5px;
+    }
 
-.btn {
-  background: #FFD700;
-  color: #000;
-  width: 80%;
-  max-width: 300px;
-  padding: 15px;
-  font-size: 1.2em;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-top: 20px;
-}
+    h3 {
+      font-size: 1em;
+      margin-bottom: 30px;
+      color: #ffc107;
+    }
 
-.info-container {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 30px;
-  font-size: 1.2em;
-  font-weight: bold;
-}
+    .btn {
+      background: #ffc107;
+      color: #000;
+      width: 80%;
+      max-width: 300px;
+      padding: 15px;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
 
-.screenshots-container {
-  margin-top: 30px;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding-bottom: 10px;
-}
+    .info-container {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 30px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
 
-.screenshots-container img {
-  width: 250px;
-  height: 150px;
-  object-fit: cover;
-  margin-right: 15px;
-  border-radius: 10px;
-  display: inline-block;
-}
+    .screenshots-container {
+      margin-top: 30px;
+      overflow-x: auto;
+      white-space: nowrap;
+      padding-bottom: 10px;
+    }
 
-.star-rating {
-  margin-top: 20px;
-}
+    .screenshots-container img {
+      width: 250px;
+      height: 150px;
+      object-fit: cover;
+      margin-right: 15px;
+      border-radius: 10px;
+      display: inline-block;
+    }
 
-.star {
-  font-size: 2em;
-  cursor: pointer;
-  color: #444;
-}
+    #loading, #error {
+      padding: 40px;
+    }
 
-.star.filled {
-  color: gold;
-}
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      background-color: #ffc107;
+      padding: 15px 40px;
+      box-sizing: border-box;
+    }
 
-.studio-banner {
-  background-color: #FFD700;
-  color: #000;
-  font-size: 1.2em;
-  padding: 10px;
-  margin-top: 20px;
-  cursor: pointer;
-}
+    .bottom-nav button {
+      background: none;
+      border: none;
+      color: #000;
+      font-size: 1.2em;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-#loading, #error {
-  padding: 40px;
-}
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8em;
+      }
 
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  background-color: #FFD700;
-  padding: 15px 40px;
-  box-sizing: border-box;
-}
+      .info-container {
+        flex-direction: column;
+        gap: 10px;
+      }
 
-.bottom-nav button {
-  background: none;
-  border: none;
-  color: #000;
-  font-size: 1.2em;
-  font-weight: bold;
-  cursor: pointer;
-}
+      .btn {
+        width: 90%;
+      }
 
-@media (max-width: 600px) {
-  h1 {
-    font-size: 1.8em;
-  }
+      .bottom-nav {
+        padding: 10px 20px;
+      }
 
-  .info-container {
-    flex-direction: column;
-    gap: 10px;
-  }
+      .screenshots-container img {
+        width: 80%;
+        height: auto;
+      }
+    }
 
-  .btn {
-    width: 90%;
-  }
-
-  .bottom-nav {
-    padding: 10px 20px;
-  }
-
-  .screenshots-container img {
-    width: 80%;
-    height: auto;
-  }
-}
-
+    #stars span {
+      font-size: 24px;
+      cursor: pointer;
+      padding: 3px;
+      color: #444;
+    }
   </style>
-  <!-- Scripts will be inserted here -->
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, increment, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCRtPZ34Y1J-p5b7FJxEUagYg3h_D6PbhM",
+      authDomain: "igsfogstudio-df541.firebaseapp.com",
+      databaseURL: "https://igsfogstudio-df541-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "igsfogstudio-df541",
+      storageBucket: "igsfogstudio-df541.appspot.com",
+      messagingSenderId: "206722625476",
+      appId: "1:206722625476:web:c222830b5404f87bf57e91",
+      measurementId: "G-1JL82Z0FK0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const params = new URLSearchParams(window.location.search);
+    const gameId = params.get("id");
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+    });
+
+    async function loadGame() {
+      const loader = document.getElementById("loading");
+      const gameSection = document.getElementById("gameSection");
+      const errorDiv = document.getElementById("error");
+
+      if (!gameId) {
+        loader.style.display = "none";
+        errorDiv.textContent = "No game ID provided.";
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "games", gameId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const game = docSnap.data();
+          document.getElementById("logo").src = game.gameLogoUrl;
+          document.getElementById("name").textContent = game.gameName;
+          document.getElementById("uploader").textContent = `Uploader: ${game.uploaderName}`;
+          document.getElementById("downloads").textContent = `${game.downloadsCount || 0} Downloads`;
+          document.getElementById("fileSize").textContent = `Size ${game.fileSize || "Unknown"}`;
+
+          const screenshots = [game.screenshot1, game.screenshot2, game.screenshot3, game.screenshot4];
+          const container = document.getElementById("screenshots");
+          container.innerHTML = "";
+          screenshots.forEach(url => {
+            if (url) {
+              const img = document.createElement("img");
+              img.src = url;
+              container.appendChild(img);
+            }
+          });
+
+          setupRating();
+
+          document.getElementById("downloadBtn").onclick = async () => {
+            if (!currentUser) {
+              alert("You must be logged in to download.");
+              return;
+            }
+
+            await updateDoc(docRef, {
+              downloadsCount: increment(1)
+            });
+
+            document.getElementById("downloads").textContent =
+              `${(game.downloadsCount || 0) + 1} Downloads`;
+
+            window.location.href = game.downloadLink;
+          };
+
+          loader.style.display = "none";
+          gameSection.style.display = "block";
+        } else {
+          loader.style.display = "none";
+          errorDiv.textContent = "Game not found.";
+          errorDiv.style.display = "block";
+        }
+      } catch (e) {
+        loader.style.display = "none";
+        errorDiv.textContent = "Error loading game: " + e.message;
+        errorDiv.style.display = "block";
+      }
+    }
+
+    async function setupRating() {
+      const starsContainer = document.getElementById("stars");
+      const ratingDisplay = document.getElementById("averageRating");
+      starsContainer.innerHTML = "";
+
+      for (let i = 1; i <= 8; i++) {
+        const star = document.createElement("span");
+        star.textContent = "★";
+
+        star.addEventListener("click", async () => {
+          if (!currentUser) {
+            alert("Login required to rate.");
+            return;
+          }
+
+          const ratingRef = doc(db, "games", gameId, "ratings", currentUser.uid);
+          await setDoc(ratingRef, { rating: i });
+          alert(`You rated this game ${i} out of 8`);
+          loadAverageRating();
+        });
+
+        starsContainer.appendChild(star);
+      }
+
+      loadAverageRating();
+    }
+
+    async function loadAverageRating() {
+      const starsContainer = document.getElementById("stars");
+      const ratingDisplay = document.getElementById("averageRating");
+
+      const ratingQuery = collection(db, "games", gameId, "ratings");
+      const ratingSnap = await getDocs(ratingQuery);
+
+      let total = 0;
+      let count = 0;
+
+      ratingSnap.forEach(doc => {
+        total += doc.data().rating;
+        count++;
+      });
+
+      if (count > 0) {
+        const average = (total / count).toFixed(2);
+        ratingDisplay.textContent = `Average Rating: ${average} / 8 (${count} votes)`;
+      } else {
+        ratingDisplay.textContent = "No ratings yet.";
+      }
+
+      const rounded = Math.round(total / count || 0);
+      starsContainer.childNodes.forEach((star, index) => {
+        star.style.color = index < rounded ? "#ffc107" : "#444";
+      });
+    }
+
+    window.onload = loadGame;
+  </script>
 </head>
-<body>  <div id="loading"><h3>Loading game...</h3></div>  <div id="gameSection" style="display: none;">
+
+<body>
+  <div id="loading"><h3>Loading game...</h3></div>
+
+  <div id="gameSection">
     <img id="logo" src="" alt="Game Logo">
     <h1 id="name"></h1>
-    <h3 id="uploader"></h3><div class="studio-banner" id="studioBanner">Studio Name</div>
+    <h3 id="uploader"></h3>
 
-<div class="info-container">
-  <div id="fileSize"></div>
-  <div id="downloads"></div>
-</div>
+    <div class="info-container">
+      <div id="fileSize"></div>
+      <div id="downloads"></div>
+    </div>
 
-<button id="downloadBtn" class="btn">Download</button>
+    <button id="downloadBtn" class="btn">Download</button>
 
-<div id="screenshots" class="screenshots-container"></div>
+    <div id="screenshots" class="screenshots-container"></div>
 
-<div class="star-rating" id="starContainer">
-  <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
-  <span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span><span class="star">&#9733;</span>
-</div>
-<div><span id="avgRating">0</span> / 8 Rating</div>
+    <!-- Rating Section -->
+    <div style="margin-top: 20px;">
+      <div id="stars"></div>
+      <div id="averageRating" style="margin-top: 10px; font-size: 1.1em;"></div>
+    </div>
+  </div>
 
-  </div>  <div id="error" style="color:red;"></div>  <!-- ✅ Click Tracker: Only for logged-in users -->  <p id="clickTracker" style="text-align: center; color: #aaa; font-size: 0.9em; margin-bottom: 5px; display: none;">
-    Bottom buttons clicked: <span id="clickCount">0</span> times.
-  </p>  <div class="bottom-nav">
+  <div id="error" style="color:red;"></div>
+
+  <div class="bottom-nav">
     <button onclick="location.href='index.html'">Home</button>
-    <button onclick="location.href='games.html'">Games</button>
     <button onclick="location.href='profile.html'">Profile</button>
-  </div></body>
+  </div>
+</body>
 </html>
