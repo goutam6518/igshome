@@ -1,140 +1,126 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: sans-serif;
-      background-color: #000;
+      font-family: 'Poppins', sans-serif;
+      background-color: #121212;
       color: #fff;
-      margin: 0;
-      padding: 0;
+      padding-bottom: 120px;
     }
-
+    button {
+      font-family: 'Poppins', sans-serif;
+    }
     #homeBtn, #signOutBtn {
       position: absolute;
-      background-color: #FFD700;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
       color: #000;
       border: none;
       padding: 10px 20px;
-      font-size: 1.1em;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    #homeBtn {
-      top: 20px;
-      left: 20px;
-    }
-
-    #signOutBtn {
-      top: 20px;
-      right: 20px;
-    }
-
-    .profile-container {
-      text-align: center;
-      margin-top: 100px;
-    }
-
-    .profile-photo {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 5px solid #fff;
-    }
-
-    .profile-name, .profile-studio {
-      font-size: 1.8em;
-      margin: 10px 0;
-    }
-
-    input[type="text"] {
-      font-size: 1.2em;
-      padding: 5px;
-      border-radius: 5px;
-      border: 1px solid #FFD700;
-      margin: 5px 0;
-      width: 80%;
-      max-width: 300px;
-    }
-
-    #editBtn, #uploadBtn {
-      font-size: 1.1em;
-      padding: 10px 25px;
-      background-color: #FFD700;
-      color: #000;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin: 20px auto;
-      display: block;
-    }
-
-    .section-title {
-      font-size: 1.2em;
-      margin: 40px 20px 10px;
-      color: #fff;
-    }
-
-    #gameList {
-      width: 90%;
-      max-width: 900px;
-      margin: 20px auto;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-    }
-
-    .game-item {
-      background-color: #FFD700;
-      color: #000;
-      padding: 15px;
-      border-radius: 10px;
-      text-align: center;
-      width: 180px;
-    }
-
-    .game-item img {
-      width: 100%;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 6px;
-      background-color: #fff;
-    }
-
-    .game-name {
       font-size: 1em;
-      margin-top: 10px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
     }
+    #homeBtn { top: 20px; left: 20px; }
+    #signOutBtn { top: 20px; right: 20px; }.profile-container {
+  text-align: center;
+  margin-top: 120px;
+}
+.profile-photo {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #FFD700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+.profile-name, .profile-studio {
+  font-size: 1.5em;
+  margin: 10px 0;
+  font-weight: 600;
+  color: #FFD700;
+}
+input[type="text"] {
+  font-size: 1em;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #FFD700;
+  width: 80%;
+  max-width: 300px;
+  margin: 10px auto;
+  display: block;
+}
+#editBtn, #uploadBtn {
+  font-size: 1em;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 20px auto;
+  display: block;
+  font-weight: 600;
+}
+.section-title {
+  font-size: 1.3em;
+  margin: 40px 20px 10px;
+  text-align: center;
+  color: #fff;
+  font-weight: bold;
+}
+#gameList {
+  width: 90%;
+  max-width: 1000px;
+  margin: 20px auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+.game-item {
+  background-color: #FFD700;
+  color: #000;
+  padding: 15px;
+  border-radius: 12px;
+  width: 180px;
+  text-align: center;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+}
+.game-item img {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #fff;
+}
+.game-name {
+  font-size: 1em;
+  font-weight: 600;
+}
+.game-meta {
+  font-size: 0.9em;
+  color: #333;
+}
 
-    .game-meta {
-      font-size: 0.9em;
-      color: #222;
-    }
   </style>
 </head>
 <body>
   <button id="homeBtn" onclick="window.location.href='index.html'">Home</button>
-  <button id="signOutBtn">Sign Out</button>
-
-  <div class="profile-container">
+  <button id="signOutBtn">Sign Out</button>  <div class="profile-container">
     <img src="https://ik.imagekit.io/6ilngyaqa/1748151255149-1000078269_3cHySnYwl.webp" alt="Profile Photo" class="profile-photo">
     <div id="userName" class="profile-name" contenteditable="false">User Name</div>
     <div id="studioName" class="profile-studio" contenteditable="false">Studio Name</div>
     <button id="editBtn">Edit Profile</button>
-  </div>
-
-  <div class="section-title">Uploaded game</div>
+  </div>  <div class="section-title">Uploaded Games</div>
   <div id="gameList"></div>
-
-  <button id="uploadBtn" onclick="window.location.href='https://t.me/gkfog1'">Upload Game</button>
-
-  <script type="module">
+  <button id="uploadBtn" onclick="window.location.href='https://t.me/gkfog1'">Upload Game</button>  <script type="module">
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-auth.js";
     import { getFirestore, collection, getDocs, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-firestore.js";
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.3/firebase-app.js";
@@ -227,6 +213,5 @@
         }
       });
     }
-  </script>
-</body>
+  </script></body>
 </html>
